@@ -1,0 +1,8 @@
+{
+  "metadata": {"name": "broken"},
+  "entries": [
+    {"section": "database", "key": "port", "value": "not-a-number", "type": "int"},
+    {"section": "server", "value": true, "type": "bool"},
+    {"section": "server", "key": "mode", "value": "fast", "type": "enum"}
+  ]
+}

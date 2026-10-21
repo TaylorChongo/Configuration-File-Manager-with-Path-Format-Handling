@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "config-file-manager"
+version = "0.1.0"
+description = "Read, validate, convert and version configuration files in JSON, CSV and XML."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Bingi Taylor", email = "bingi.taylor@amalitechtraining.org" }]
+dependencies = []  # standard library only
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "mypy>=1.10",
+    "ruff>=0.5",
+]
+
+[project.scripts]
+config-manager = "config_manager.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "slow: tests that generate or read large files",
+]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+mypy_path = "src"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "PTH"]  # PTH enforces pathlib over os.path
+
+[tool.coverage.run]
+source = ["config_manager"]

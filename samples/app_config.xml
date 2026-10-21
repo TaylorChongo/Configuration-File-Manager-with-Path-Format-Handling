@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<config name="app" version="1.0.0">
+  <description>Sample application configuration</description>
+  <entry section="database" key="host" type="str" description="Database host">localhost</entry>
+  <entry section="database" key="port" type="int" description="Database port">5432</entry>
+  <entry section="database" key="pool_timeout" type="float">30.5</entry>
+  <entry section="server" key="debug" type="bool" description="Enable debug mode">false</entry>
+  <entry section="server" key="workers" type="int">4</entry>
+  <entry section="logging" key="level" type="str">INFO</entry>
+</config>

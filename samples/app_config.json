@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "name": "app",
+    "version": "1.0.0",
+    "description": "Sample application configuration"
+  },
+  "entries": [
+    {"section": "database", "key": "host", "value": "localhost", "type": "str", "description": "Database host"},
+    {"section": "database", "key": "port", "value": 5432, "type": "int", "description": "Database port"},
+    {"section": "database", "key": "pool_timeout", "value": 30.5, "type": "float"},
+    {"section": "server", "key": "debug", "value": false, "type": "bool", "description": "Enable debug mode"},
+    {"section": "server", "key": "workers", "value": 4, "type": "int"},
+    {"section": "logging", "key": "level", "value": "INFO", "type": "str"}
+  ]
+}

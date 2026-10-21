@@ -1,0 +1,10 @@
+# name=app
+# version=1.0.0
+# description=Sample application configuration
+section,key,value,type,description
+database,host,localhost,str,Database host
+database,port,5432,int,Database port
+database,pool_timeout,30.5,float,
+server,debug,false,bool,Enable debug mode
+server,workers,4,int,
+logging,level,INFO,str,
