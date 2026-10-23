@@ -106,6 +106,9 @@ config-manager convert samples/app_config.json out/app_config.xml
 config-manager convert samples/app_config.csv  out/app_config.json
 config-manager validate samples/app_config.xml
 config-manager discover samples/
+config-manager version save samples/app_config.json
+config-manager version list samples/app_config.json
+config-manager version restore samples/app_config.json -n 1
 ```
 
 ```python
@@ -145,5 +148,5 @@ mypy src && ruff check .                 # type check + lint
 
 - [x] Day 1–2 — pathlib file ops, JSON reader/writer, file discovery
 - [x] Day 3–4 — CSV parser, XML parser, format conversion
-- [ ] Day 5–6 — TypedDict validation, Protocol handlers, transactions, versioning
+- [x] Day 5–6 — TypedDict validation, Protocol handlers, transactions, versioning
 - [ ] Day 7 — generators, pytest suite per format, memory report
