@@ -8,9 +8,9 @@ File layout::
 import json
 from collections.abc import Iterator
 from pathlib import Path
-from typing import cast
 
 from config_manager.schemas import ConfigDocument, ConfigEntry
+from config_manager.validation import validate_document
 
 
 class JsonHandler:
@@ -18,11 +18,7 @@ class JsonHandler:
 
     def read(self, path: Path) -> ConfigDocument:
         with path.open(encoding="utf-8") as fh:
-            data = json.load(fh)
-        if not isinstance(data, dict):
-            raise ValueError(f"{path}: top-level JSON value must be an object")
-        # TODO (Day 5-6): replace cast with validate_document(data)
-        return cast(ConfigDocument, data)
+            return validate_document(json.load(fh))
 
     def write(self, document: ConfigDocument, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)

@@ -7,6 +7,7 @@ import pytest
 
 from config_manager.handlers import JsonHandler
 from config_manager.schemas import ConfigDocument
+from config_manager.validation import ConfigValidationError
 
 
 @pytest.fixture
@@ -63,3 +64,21 @@ def test_read_non_object_raises(handler: JsonHandler, tmp_path: Path) -> None:
     bad.write_text("[1, 2, 3]", encoding="utf-8")
     with pytest.raises(ValueError, match="must be an object"):
         handler.read(bad)
+
+
+def test_read_invalid_fixture_raises(handler: JsonHandler, fixtures_dir: Path) -> None:
+    with pytest.raises(ConfigValidationError) as info:
+        handler.read(fixtures_dir / "invalid_config.json")
+    assert len(info.value.issues) == 4
+
+
+def test_read_converts_int_to_float(handler: JsonHandler, tmp_path: Path) -> None:
+    path = tmp_path / "a.json"
+    path.write_text(
+        '{"metadata": {"name": "a", "version": "1"},'
+        ' "entries": [{"section": "s", "key": "k", "value": 4, "type": "float"}]}',
+        encoding="utf-8",
+    )
+    value = handler.read(path)["entries"][0]["value"]
+    assert value == 4.0
+    assert isinstance(value, float)

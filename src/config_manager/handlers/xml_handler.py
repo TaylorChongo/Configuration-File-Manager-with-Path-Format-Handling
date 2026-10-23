@@ -13,8 +13,8 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import cast
 
-from config_manager.schemas import ConfigDocument, ConfigEntry, ConfigMetadata, ValueType
-from config_manager.validation import coerce_value, entry_to_strings
+from config_manager.schemas import ConfigDocument, ConfigEntry, ValueType
+from config_manager.validation import coerce_value, entry_to_strings, validate_document
 
 REQUIRED_ATTRIBUTES: tuple[str, ...] = ("section", "key", "type")
 
@@ -66,8 +66,7 @@ class XmlHandler:
             element_to_entry(elem, f"{path}, entry {index}")
             for index, elem in enumerate(root.iterfind("entry"), start=1)
         ]
-        # TODO (Day 5-6): validate metadata via validate_document
-        return {"metadata": cast(ConfigMetadata, metadata), "entries": entries}
+        return validate_document({"metadata": metadata, "entries": entries})
 
     def write(self, document: ConfigDocument, path: Path) -> None:
         metadata = document["metadata"]

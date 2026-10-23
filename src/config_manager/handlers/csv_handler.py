@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import cast
 
 from config_manager.schemas import ConfigDocument, ConfigEntry, ConfigMetadata, ValueType
-from config_manager.validation import coerce_value, entry_to_strings
+from config_manager.validation import coerce_value, entry_to_strings, validate_document
 
 FIELDNAMES: tuple[str, ...] = ("section", "key", "value", "type", "description")
 REQUIRED_FIELDS: frozenset[str] = frozenset({"section", "key", "value", "type"})
@@ -30,8 +30,9 @@ class CsvHandler:
     extensions: tuple[str, ...] = (".csv",)
 
     def read(self, path: Path) -> ConfigDocument:
-        # TODO (Day 5-6): validate metadata via validate_document
-        return {"metadata": self.read_metadata(path), "entries": list(self.iter_entries(path))}
+        return validate_document(
+            {"metadata": self.read_metadata(path), "entries": list(self.iter_entries(path))}
+        )
 
     def read_metadata(self, path: Path) -> ConfigMetadata:
         """Parse the leading ``# key=value`` comment lines."""

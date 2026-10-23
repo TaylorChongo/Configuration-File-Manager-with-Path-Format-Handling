@@ -7,6 +7,7 @@ import pytest
 
 from config_manager.handlers import CsvHandler
 from config_manager.schemas import ConfigDocument
+from config_manager.validation import ConfigValidationError
 
 
 @pytest.fixture
@@ -81,9 +82,19 @@ def test_read_metadata_ignores_lines_without_equals(handler: CsvHandler, tmp_pat
 
 def test_no_metadata(handler: CsvHandler, tmp_path: Path) -> None:
     path = write_csv(tmp_path / "a.csv", "section,key,value,type\ns,k,1,int\n")
-    doc = handler.read(path)
-    assert not doc["metadata"]
-    assert doc["entries"] == [{"section": "s", "key": "k", "value": 1, "type": "int"}]
+    assert not handler.read_metadata(path)
+    assert list(handler.iter_entries(path)) == [
+        {"section": "s", "key": "k", "value": 1, "type": "int"}
+    ]
+    with pytest.raises(ConfigValidationError, match="metadata.name: is required"):
+        handler.read(path)
+
+
+def test_read_rejects_duplicate_keys(handler: CsvHandler, tmp_path: Path) -> None:
+    path = write_csv(tmp_path / "a.csv", "# name=x\n# version=1\nsection,key,value,type\n"
+                                         "s,k,1,int\ns,k,2,int\n")
+    with pytest.raises(ConfigValidationError, match="duplicate key 's.k'"):
+        handler.read(path)
 
 
 def test_bad_value_reports_row(handler: CsvHandler, tmp_path: Path) -> None:

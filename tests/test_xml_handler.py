@@ -7,6 +7,7 @@ import pytest
 
 from config_manager.handlers import XmlHandler
 from config_manager.schemas import ConfigDocument
+from config_manager.validation import ConfigValidationError
 
 
 @pytest.fixture
@@ -95,4 +96,10 @@ def test_bad_value_reports_entry(handler: XmlHandler, tmp_path: Path) -> None:
 def test_malformed_xml_raises(handler: XmlHandler, tmp_path: Path) -> None:
     path = write_xml(tmp_path / "a.xml", "<config><entry>")
     with pytest.raises(ET.ParseError):
+        handler.read(path)
+
+
+def test_read_requires_metadata(handler: XmlHandler, tmp_path: Path) -> None:
+    path = write_xml(tmp_path / "a.xml", '<config version="1"/>')
+    with pytest.raises(ConfigValidationError, match="metadata.name: is required"):
         handler.read(path)

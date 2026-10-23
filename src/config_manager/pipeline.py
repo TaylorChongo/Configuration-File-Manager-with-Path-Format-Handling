@@ -4,6 +4,7 @@ from collections.abc import Callable, Iterable, Iterator
 from functools import reduce
 
 from config_manager.schemas import ConfigEntry
+from config_manager.validation import is_valid_entry
 
 Transform = Callable[[Iterable[ConfigEntry]], Iterable[ConfigEntry]]
 
@@ -14,8 +15,8 @@ def compose(*steps: Transform) -> Transform:
 
 
 def filter_valid(entries: Iterable[ConfigEntry]) -> Iterator[ConfigEntry]:
-    # TODO (Day 5-6): filter(is_valid_entry, entries)
-    raise NotImplementedError
+    """Drop entries that fail ``validate_entry``."""
+    return filter(is_valid_entry, entries)
 
 
 def _normalise_entry(entry: ConfigEntry) -> ConfigEntry:

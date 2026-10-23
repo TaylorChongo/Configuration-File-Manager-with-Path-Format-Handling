@@ -1,8 +1,9 @@
 """Tests for the map()/filter() transformation pipeline."""
 
 from collections.abc import Iterable, Iterator
+from typing import Any
 
-from config_manager.pipeline import compose, normalise_keys, select_section
+from config_manager.pipeline import compose, filter_valid, normalise_keys, select_section
 from config_manager.schemas import ConfigDocument, ConfigEntry
 
 
@@ -79,3 +80,12 @@ def test_compose_order_matters() -> None:
 def test_compose_with_no_steps_is_identity(sample_document: ConfigDocument) -> None:
     entries = sample_document["entries"]
     assert list(compose()(entries)) == entries
+
+
+def test_filter_valid_drops_bad_entries(sample_document: ConfigDocument) -> None:
+    bad: list[Any] = [
+        {"section": "s", "key": "port", "value": "abc", "type": "int"},
+        {"section": "s", "value": 1, "type": "int"},
+    ]
+    entries = [*sample_document["entries"], *bad]
+    assert list(filter_valid(entries)) == sample_document["entries"]
