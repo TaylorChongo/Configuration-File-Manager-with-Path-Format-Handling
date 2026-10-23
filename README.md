@@ -39,7 +39,7 @@ tests/                # pytest suite + fixtures/
 |---|---|:-:|:-:|:-:|---|---|
 | JSON | `.json` | ✅ | ✅ | ⬜ | `json` | `"metadata"` object |
 | CSV  | `.csv`  | ✅ | ✅ | ✅ | `csv.DictReader` / `DictWriter` | `# key=value` header comments |
-| XML  | `.xml`  | ⬜ | ⬜ | ⬜ | `xml.etree.ElementTree` (`iterparse`) | `<config>` attributes + `<description>` |
+| XML  | `.xml`  | ✅ | ✅ | ⬜ | `xml.etree.ElementTree` (`iterparse`) | `<config>` attributes + `<description>` |
 
 _Tick each cell (✅) as it is implemented._
 
