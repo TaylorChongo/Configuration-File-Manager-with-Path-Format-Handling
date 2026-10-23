@@ -18,12 +18,21 @@ def filter_valid(entries: Iterable[ConfigEntry]) -> Iterator[ConfigEntry]:
     raise NotImplementedError
 
 
+def _normalise_entry(entry: ConfigEntry) -> ConfigEntry:
+    normalised = entry.copy()  # never mutate the caller's entry
+    normalised["section"] = entry["section"].strip().lower()
+    normalised["key"] = entry["key"].strip().lower()
+    return normalised
+
+
 def normalise_keys(entries: Iterable[ConfigEntry]) -> Iterator[ConfigEntry]:
-    # TODO (Day 3-4): map() — strip + lower-case section/key
-    raise NotImplementedError
+    """Strip whitespace and lower-case each entry's section and key."""
+    return map(_normalise_entry, entries)
 
 
 def select_section(section: str) -> Transform:
-    """Return a transform keeping only entries in ``section``."""
-    # TODO (Day 3-4): filter() with a closure
-    raise NotImplementedError
+    """Return a transform keeping only entries in ``section`` (exact match).
+
+    Compose after ``normalise_keys`` for a case-insensitive match.
+    """
+    return lambda entries: filter(lambda entry: entry["section"] == section, entries)
