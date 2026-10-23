@@ -37,7 +37,7 @@ tests/                # pytest suite + fixtures/
 
 | Format | Extension | Read | Write | Streaming (`iter_entries`) | Library | Metadata stored as |
 |---|---|:-:|:-:|:-:|---|---|
-| JSON | `.json` | ⬜ | ⬜ | ⬜ | `json` | `"metadata"` object |
+| JSON | `.json` | ✅ | ✅ | ⬜ | `json` | `"metadata"` object |
 | CSV  | `.csv`  | ⬜ | ⬜ | ⬜ | `csv.DictReader` / `DictWriter` | `# key=value` header comments |
 | XML  | `.xml`  | ⬜ | ⬜ | ⬜ | `xml.etree.ElementTree` (`iterparse`) | `<config>` attributes + `<description>` |
 
