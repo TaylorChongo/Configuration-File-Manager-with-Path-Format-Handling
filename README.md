@@ -37,11 +37,11 @@ tests/                # pytest suite + fixtures/
 
 | Format | Extension | Read | Write | Streaming (`iter_entries`) | Library | Metadata stored as |
 |---|---|:-:|:-:|:-:|---|---|
-| JSON | `.json` | ✅ | ✅ | ⬜ | `json` | `"metadata"` object |
+| JSON | `.json` | ✅ | ✅ | ✅\* | `json` | `"metadata"` object |
 | CSV  | `.csv`  | ✅ | ✅ | ✅ | `csv.DictReader` / `DictWriter` | `# key=value` header comments |
-| XML  | `.xml`  | ✅ | ✅ | ⬜ | `xml.etree.ElementTree` (`iterparse`) | `<config>` attributes + `<description>` |
+| XML  | `.xml`  | ✅ | ✅ | ✅ | `xml.etree.ElementTree` (`iterparse`) | `<config>` attributes + `<description>` |
 
-_Tick each cell (✅) as it is implemented._
+\* The `json` module can only parse a whole document, so `JsonHandler.iter_entries` yields entries after loading the file: same interface, no memory saving.
 
 ## Schema Definitions
 

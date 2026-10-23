@@ -83,6 +83,26 @@ class XmlHandler:
             fh.write(b"\n")
 
     def iter_entries(self, path: Path) -> Iterator[ConfigEntry]:
-        # TODO (Day 7): ET.iterparse(events=("end",)); yield on each <entry>,
-        # then elem.clear() to release memory
-        raise NotImplementedError
+        """Yield one coerced entry per ``<entry>``, keeping memory flat.
+
+        ``iterparse`` still attaches every parsed element to the root, so each
+        finished child is cleared *and* detached; only the current one is in memory.
+        """
+        with path.open("rb") as fh:
+            events = ET.iterparse(fh, events=("start", "end"))
+            _, root = next(events)
+            if root.tag != "config":
+                raise ValueError(f"{path}: root element must be <config>, got <{root.tag}>")
+            depth, index = 0, 0
+            for event, elem in events:
+                if event == "start":
+                    depth += 1
+                    continue
+                depth -= 1
+                if depth > 0:
+                    continue  # still inside a child of <config>
+                if elem.tag == "entry":
+                    index += 1
+                    yield element_to_entry(elem, f"{path}, entry {index}")
+                elem.clear()
+                del root[:]

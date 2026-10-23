@@ -27,6 +27,10 @@ class JsonHandler:
             fh.write("\n")
 
     def iter_entries(self, path: Path) -> Iterator[ConfigEntry]:
-        # TODO (Day 7): JSON isn't line-oriented; yield from read()["entries"]
-        # or support JSON Lines (.jsonl) for true streaming
-        raise NotImplementedError
+        """Yield entries one at a time.
+
+        The standard ``json`` module can only parse a whole document, so this
+        loads the file first: it satisfies the ``FormatHandler`` interface but
+        saves no memory. (True streaming would need a format like JSON Lines.)
+        """
+        yield from self.read(path)["entries"]
