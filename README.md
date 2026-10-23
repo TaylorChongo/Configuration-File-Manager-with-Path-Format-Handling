@@ -134,6 +134,8 @@ python scripts/generate_large_samples.py --rows 200000
 python scripts/benchmark_memory.py
 ```
 
+At 200,000 entries, streaming with `iter_entries()` peaks at **0.17 MiB (CSV)** and **0.29 MiB (XML)**, against 120 MiB and 211 MiB for a full `read()`. Streaming memory stays constant as files grow, while a full load grows linearly with file size.
+
 Results and analysis: [`reports/memory_report.md`](reports/memory_report.md).
 
 ## Testing
@@ -149,4 +151,4 @@ mypy src && ruff check .                 # type check + lint
 - [x] Day 1–2 — pathlib file ops, JSON reader/writer, file discovery
 - [x] Day 3–4 — CSV parser, XML parser, format conversion
 - [x] Day 5–6 — TypedDict validation, Protocol handlers, transactions, versioning
-- [ ] Day 7 — generators, pytest suite per format, memory report
+- [x] Day 7 — generators, pytest suite per format, memory report
