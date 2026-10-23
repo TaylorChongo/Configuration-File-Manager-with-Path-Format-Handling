@@ -108,3 +108,17 @@ def test_missing_columns_raises(handler: CsvHandler, tmp_path: Path) -> None:
     path = write_csv(tmp_path / "a.csv", "section,key\ns,k\n")
     with pytest.raises(ValueError, match="missing CSV columns: type, value"):
         handler.read(path)
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+def test_write_rejects_line_break_in_metadata(
+    handler: CsvHandler, tmp_path: Path, sample_document: ConfigDocument, newline: str
+) -> None:
+    target = tmp_path / "out.csv"
+    handler.write(sample_document, target)
+    before = target.read_bytes()
+
+    sample_document["metadata"]["description"] = f"line 1{newline}line 2"
+    with pytest.raises(ValueError, match="'description' cannot contain line breaks"):
+        handler.write(sample_document, target)
+    assert target.read_bytes() == before  # existing file untouched

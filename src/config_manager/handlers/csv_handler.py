@@ -45,6 +45,10 @@ class CsvHandler:
         return cast(ConfigMetadata, metadata)
 
     def write(self, document: ConfigDocument, path: Path) -> None:
+        # Checked before opening, so an existing file is never left half-written
+        for key, value in document["metadata"].items():
+            if isinstance(value, str) and ("\n" in value or "\r" in value):
+                raise ValueError(f"CSV metadata '{key}' cannot contain line breaks")
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", encoding="utf-8", newline="") as fh:
             for key, value in document["metadata"].items():

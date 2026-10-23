@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from config_manager.paths import ConfigTreeIterator, discover_configs, inspect_file
+from config_manager.paths import ConfigTreeIterator, discover_configs, ensure_dir, inspect_file
 
 
 @pytest.fixture
@@ -121,3 +121,10 @@ def test_tree_iterator_empty_dir(tmp_path: Path) -> None:
 def test_tree_iterator_rejects_missing_root(tmp_path: Path) -> None:
     with pytest.raises(NotADirectoryError):
         ConfigTreeIterator(tmp_path / "missing")
+
+
+def test_ensure_dir(tmp_path: Path) -> None:
+    target = tmp_path / "a" / "b"
+    assert ensure_dir(target) == target
+    assert target.is_dir()
+    assert ensure_dir(target) == target  # already exists: no error

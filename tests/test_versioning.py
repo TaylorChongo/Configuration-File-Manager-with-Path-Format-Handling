@@ -116,3 +116,21 @@ def test_restore_missing_version_raises(config: Path) -> None:
     ghost = versions_dir(config) / "app_config.20200101T000000000000Z.json"
     with pytest.raises(FileNotFoundError):
         restore_version(config, ghost)
+
+
+def test_failed_restore_keeps_file_and_cleans_up(
+    config: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    old = save_version(config)
+    config.write_text("current", encoding="utf-8")
+
+    def broken_replace(self: Path, target: Path) -> Path:
+        raise OSError("disk full")
+
+    # fail the final swap, after the current file was backed up and the temp file written
+    monkeypatch.setattr(Path, "replace", broken_replace)
+    with pytest.raises(OSError, match="disk full"):
+        restore_version(config, old)
+    assert config.read_text(encoding="utf-8") == "current"
+    assert sorted(p.name for p in config.parent.iterdir()) == [".versions", "app_config.json"]
+    assert len(list_versions(config)) == 2  # "current" was backed up before the failure

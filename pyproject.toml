@@ -46,3 +46,8 @@ select = ["E", "F", "I", "UP", "B", "SIM", "PTH"]  # PTH enforces pathlib over o
 
 [tool.coverage.run]
 source = ["config_manager"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 95
+exclude_also = ['if __name__ == "__main__":']
