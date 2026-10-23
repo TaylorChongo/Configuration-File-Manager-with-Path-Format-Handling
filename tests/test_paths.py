@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from config_manager.paths import discover_configs, inspect_file
+from config_manager.paths import ConfigTreeIterator, discover_configs, inspect_file
 
 
 @pytest.fixture
@@ -85,3 +85,39 @@ def test_inspect_missing_file_raises(tmp_path: Path) -> None:
 def test_inspect_directory_raises(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError):
         inspect_file(tmp_path)
+
+
+def test_tree_iterator_yields_sorted_paths(config_tree: Path) -> None:
+    found = list(ConfigTreeIterator(config_tree))
+    assert found == sorted(discover_configs(config_tree))
+    assert len(found) == 4
+
+
+def test_tree_iterator_protocol(config_tree: Path) -> None:
+    it = ConfigTreeIterator(config_tree)
+    assert iter(it) is it
+    first = next(it)
+    assert first == min(discover_configs(config_tree))
+
+
+def test_tree_iterator_is_single_pass(config_tree: Path) -> None:
+    it = ConfigTreeIterator(config_tree)
+    assert len(list(it)) == 4
+    assert list(it) == []
+    with pytest.raises(StopIteration):
+        next(it)
+
+
+def test_tree_iterator_collects_lazily(tmp_path: Path) -> None:
+    it = ConfigTreeIterator(tmp_path)
+    (tmp_path / "late.json").write_text("{}", encoding="utf-8")  # added before first next()
+    assert list(it) == [tmp_path / "late.json"]
+
+
+def test_tree_iterator_empty_dir(tmp_path: Path) -> None:
+    assert list(ConfigTreeIterator(tmp_path)) == []
+
+
+def test_tree_iterator_rejects_missing_root(tmp_path: Path) -> None:
+    with pytest.raises(NotADirectoryError):
+        ConfigTreeIterator(tmp_path / "missing")

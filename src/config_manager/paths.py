@@ -66,10 +66,20 @@ class ConfigTreeIterator:
 
     def __init__(self, root: Path) -> None:
         self._root = root
-        # TODO (Day 1-2): collect/sort lazily, track position
+        # discover_configs checks ``root`` now; the tree is only walked on first next()
+        self._pending: Iterator[Path] | None = discover_configs(root)
+        self._paths: list[Path] = []
+        self._index = 0
 
     def __iter__(self) -> "ConfigTreeIterator":
         return self
 
     def __next__(self) -> Path:
-        raise NotImplementedError
+        if self._pending is not None:
+            self._paths = sorted(self._pending)
+            self._pending = None
+        if self._index >= len(self._paths):
+            raise StopIteration
+        path = self._paths[self._index]
+        self._index += 1
+        return path
