@@ -10,6 +10,9 @@ from config_manager.schemas import (
     ValueType,
 )
 
+_TRUE_STRINGS: frozenset[str] = frozenset({"true", "1", "yes"})
+_FALSE_STRINGS: frozenset[str] = frozenset({"false", "0", "no"})
+
 
 class ConfigValidationError(ValueError):
     def __init__(self, issues: list[ValidationIssue]) -> None:
@@ -35,12 +38,40 @@ def validate_document(raw: dict[str, Any]) -> ConfigDocument:
 
 
 def coerce_value(value: str, value_type: ValueType) -> ConfigValue:
-    """Convert a string read from CSV/XML into its declared Python type."""
-    # TODO (Day 3-4): "bool" -> accept true/false/1/0/yes/no
-    raise NotImplementedError
+    """Convert a string read from CSV/XML into its declared Python type.
+
+    Raises ``ValueError`` if ``value`` can't be read as ``value_type``.
+    """
+    try:
+        match value_type:
+            case "str":
+                return value
+            case "int":
+                return int(value)
+            case "float":
+                return float(value)
+            case "bool":
+                text = value.strip().lower()
+                if text in _TRUE_STRINGS:
+                    return True
+                if text in _FALSE_STRINGS:
+                    return False
+                raise ValueError
+    except ValueError:
+        raise ValueError(f"cannot convert {value!r} to {value_type}") from None
+    raise ValueError(f"unsupported type {value_type!r}")
 
 
 def entry_to_strings(entry: ConfigEntry) -> dict[str, str]:
-    """Flatten an entry to strings for text formats (CSV/XML)."""
-    # TODO (Day 3-4)
-    raise NotImplementedError
+    """Flatten an entry to strings for text formats (CSV/XML).
+
+    Booleans become ``"true"``/``"false"``; a missing description becomes ``""``.
+    """
+    value = entry["value"]
+    return {
+        "section": entry["section"],
+        "key": entry["key"],
+        "value": str(value).lower() if isinstance(value, bool) else str(value),
+        "type": entry["type"],
+        "description": entry.get("description", ""),
+    }
