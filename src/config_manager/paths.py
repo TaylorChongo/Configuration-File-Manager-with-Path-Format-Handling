@@ -1,8 +1,9 @@
 """pathlib-based file discovery and inspection helpers."""
 
+import os
 from collections.abc import Iterator
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 SUPPORTED_SUFFIXES: frozenset[str] = frozenset({".json", ".csv", ".xml"})
@@ -17,16 +18,41 @@ class FileInfo:
     writable: bool
 
 
+def _is_hidden(path: Path, root: Path) -> bool:
+    """True if any part of ``path`` below ``root`` starts with a dot (e.g. ``.versions``)."""
+    return any(part.startswith(".") for part in path.relative_to(root).parts)
+
+
 def discover_configs(root: Path, *, recursive: bool = True) -> Iterator[Path]:
-    """Yield supported config files under ``root`` (``rglob`` or ``glob``)."""
-    # TODO (Day 1-2)
-    raise NotImplementedError
+    """Yield supported config files under ``root`` (``rglob`` or ``glob``).
+
+    Hidden files and directories (``.versions``, ``.venv``, ...) are skipped.
+    Raises ``NotADirectoryError`` immediately if ``root`` is not a directory.
+    """
+    if not root.is_dir():
+        raise NotADirectoryError(f"Not a directory: {root}")
+    candidates = root.rglob("*") if recursive else root.glob("*")
+    return (
+        path
+        for path in candidates
+        if path.is_file()
+        and path.suffix.lower() in SUPPORTED_SUFFIXES
+        and not _is_hidden(path, root)
+    )
 
 
 def inspect_file(path: Path) -> FileInfo:
     """Return existence-checked size, mtime and permission info for ``path``."""
-    # TODO (Day 1-2): path.stat(), os.access(path, os.R_OK / os.W_OK)
-    raise NotImplementedError
+    if not path.is_file():
+        raise FileNotFoundError(f"No such file: {path}")
+    stat = path.stat()
+    return FileInfo(
+        path=path,
+        size_bytes=stat.st_size,
+        modified=datetime.fromtimestamp(stat.st_mtime, tz=UTC),
+        readable=os.access(path, os.R_OK),
+        writable=os.access(path, os.W_OK),
+    )
 
 
 def ensure_dir(path: Path) -> Path:
